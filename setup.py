@@ -6,7 +6,7 @@ with open("README.md", "r", encoding="utf-8") as f:
 
 setuptools.setup(
     name="dcorm",
-    version="0.0.1",
+    version="0.0.2",
     author="Matthias Schreiber",
     author_email="mat@pyfection.com",
     description="Data Class Object Relational Mapper",
@@ -17,5 +17,5 @@ setuptools.setup(
         "Bug Tracker": "https://github.com/pyfection/DCORM/issues"
     },
     license="MIT",
-    packages=["dcorm"],
+    packages=setuptools.find_packages(),
 )
