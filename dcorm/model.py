@@ -1,13 +1,13 @@
 from copy import deepcopy
 from dataclasses import _process_class, dataclass
 from typing import get_type_hints
-from uuid import UUID, uuid4
 
 from dcorm import Field, Collection
+from dcorm.mappers.base import Mapper
 
 
 def register(
-    cls=None, /, *, db=None, init=True, repr=True, eq=True,
+    db, *, init=True, repr=True, eq=True,
     order=False, unsafe_hash=False, frozen=False, match_args=True,
     kw_only=False, slots=False
 ):
@@ -32,13 +32,11 @@ def register(
             frozen, match_args, kw_only, slots
         )
 
-    # See if we're being called as @dataclass or @dataclass().
-    if cls is None:
-        # We're called with parens.
-        return wrap
-
-    # We're called as @dataclass without parens.
-    return wrap(cls)
+    if not isinstance(db, Mapper):
+        raise TypeError(
+            "First argument of register needs to be a Mapper."
+        )
+    return wrap
 
 
 @dataclass

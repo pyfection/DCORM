@@ -4,9 +4,10 @@ from typing import Type
 from uuid import UUID
 
 from dcorm import Model
+from dcorm.mappers.base import Mapper
 
 
-class SQLite3:
+class SQLite3(Mapper):
     def __init__(self, db_path):
         self.db_path = db_path
         self.con = sqlite3.connect(db_path)
