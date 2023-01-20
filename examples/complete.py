@@ -7,7 +7,10 @@ from dcorm.mappers.sqlite import SQLite3
 
 # Create and connect to database
 db_name = "db.sqlite"
-os.remove(db_name)
+try:
+    os.remove(db_name)
+except FileNotFoundError:
+    pass
 db = SQLite3(db_name)
 
 
