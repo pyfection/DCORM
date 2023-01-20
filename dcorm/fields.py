@@ -4,7 +4,7 @@ from typing import Any, Type, Callable, get_type_hints
 
 @dataclass
 class Field:
-    default: Type[Any] = None
+    default: Any = None
     default_factory: Callable = None
     null: bool = False
     _initialized = False
