@@ -147,5 +147,10 @@ def _register(
         frozen, match_args, kw_only, slots
     )
     cls._db = db
+    __old_init__ = cls.__init__
+    def __pre_init__(inst, *args, **kwargs):
+        inst._descriptor_values = {}
+        __old_init__(inst, *args, **kwargs)
+    cls.__init__ = __pre_init__
     db.create(cls)
     return cls

@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Any, Type, Callable, get_type_hints
+from typing import Any, Callable, get_type_hints
 
 
 @dataclass
@@ -9,7 +9,6 @@ class Field:
     null: bool = False
     backref: str = None
     model = None
-    _value = None
 
     def __set_name__(self, owner, name):
         self._owner = owner
@@ -29,7 +28,7 @@ class Field:
                 )[self._name]
                 if type_hint in (str, int, float, bool):
                     value = type_hint()
-        self._value = value
+        instance._descriptor_values[self._name] = value
 
         if not issubclass(value.__class__, Model):
             return
@@ -55,7 +54,10 @@ class Field:
             raise ValueError("Backref of wrong format")  # ToDo: improve error
 
     def __get__(self, instance, owner):
-        return self._value
+        try:
+            return instance._descriptor_values[self._name]
+        except (AttributeError, KeyError):
+            return None
 
 
 @dataclass

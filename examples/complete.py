@@ -30,6 +30,7 @@ class Class(Model):
 
 
 user = User(name="Bob")
+user3 = User(name="Bill")
 class_ = Class(name="1st Class")
 print("Collection relation")
 # user.class_ = class_
