@@ -36,7 +36,7 @@ class Field:
         type_hints = get_type_hints(
             value.__class__, locals() | Model._model_clss
         )
-        name = instance.__class__.__name__.lower()
+        name = self.backref or instance.__class__.__name__.lower()
         rel_cls = type_hints.get(name)
         if not rel_cls:
             name = f"{name}s"
