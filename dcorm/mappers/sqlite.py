@@ -28,6 +28,8 @@ class SQLite3(Mapper):
         ))
         res = self.cur.execute(sql)
         data = res.fetchone()
+        if not data:
+            return None
         data = dict(zip(model_cls._fields(), data))
         model = model_cls.from_json(**data)
         model._in_db = True
