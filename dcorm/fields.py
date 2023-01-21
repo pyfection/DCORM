@@ -23,6 +23,12 @@ class Field:
                 value = self.default
             elif self.default_factory:
                 value = self.default_factory()
+            else:  # Figure out sensible value
+                type_hint = get_type_hints(
+                    instance.__class__, locals() | Model._model_clss
+                )[self._name]
+                if type_hint in (str, int, float, bool):
+                    value = type_hint()
         self._value = value
 
         if not issubclass(value.__class__, Model):
