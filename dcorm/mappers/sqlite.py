@@ -53,8 +53,11 @@ class SQLite3(Mapper):
             value.id if isinstance(value, Model) else value
             for value in data
         ]
+        # Converting
         data = [
-            self.types_map.get(type(value), type(value))(value)
+            self.types_map.get(
+                type(value), lambda v: v
+            )(value)
             for value in data
         ]
         if model._in_db:
