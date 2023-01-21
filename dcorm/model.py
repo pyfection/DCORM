@@ -1,5 +1,5 @@
 from copy import deepcopy
-from dataclasses import _process_class, dataclass
+from dataclasses import _process_class
 from typing import get_type_hints
 
 from dcorm import Field, Collection

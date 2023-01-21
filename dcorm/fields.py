@@ -9,26 +9,27 @@ class Field:
     null: bool = False
     backref: str = None
     model = None
-    _initialized = False
-
-    def __call__(self, *args, **kwargs):
-        self._initialized = True
-
-    def __post_init__(self):
-        self._value = None
-
-        if self.default:
-            self._value = self.default
-        elif self.default_factory:
-            self._value = self.default_factory()
+    _value = None
 
     def __set_name__(self, owner, name):
         self._owner = owner
         self._name = name
 
     def __set__(self, instance, value):
-        self._value = value
         from dcorm import Model
+
+        save_relation = False
+
+        if value is None:
+            if self.default:
+                value = self.default
+            elif self.default_factory:
+                value = self.default_factory()
+                # ToDo: once #1 is solved, remove next two lines
+                if isinstance(value, Model):
+                    save_relation = True
+        self._value = value
+
         if not issubclass(value.__class__, Model):
             return
 
@@ -49,6 +50,8 @@ class Field:
                 setattr(value, name, instance)
         else:
             raise ValueError("Backref of wrong format")  # ToDo: improve error
+        if save_relation:
+            self._value.save()
 
     def __get__(self, instance, owner):
         return self._value
