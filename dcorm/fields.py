@@ -77,6 +77,18 @@ class Collection:
         self.relationships.append(other)
 
         type_hints = get_type_hints(other.__class__)
-        if type_hints[self.backref] is not self._model_class:
+        type_hint = type_hints[self.backref]
+        list_model_types = (
+            list[self._model_class], list[self._model_class.__name__]
+        )
+        if type_hint in list_model_types:
+            # many-to-many relationship
+            other_collection = getattr(other, self.backref)
+            if self.model not in other_collection:
+                other_collection.append(self.model)
+            ...
+        elif type_hint is self._model_class:
+            # many-to-one relationship
+            setattr(other, self.backref, self.model)
+        else:
             raise ValueError("Backref isn't of the right type")
-        setattr(other, self.backref, self.model)
