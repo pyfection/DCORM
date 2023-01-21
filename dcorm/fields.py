@@ -33,7 +33,9 @@ class Field:
         if not issubclass(value.__class__, Model):
             return
 
-        type_hints = get_type_hints(value.__class__)
+        type_hints = get_type_hints(
+            value.__class__, locals() | Model._model_clss
+        )
         name = instance.__class__.__name__.lower()
         rel_cls = type_hints.get(name)
         if not rel_cls:
@@ -79,7 +81,9 @@ class Collection:
     def append(self, other):
         self.relationships.append(other)
 
-        type_hints = get_type_hints(other.__class__)
+        type_hints = get_type_hints(
+            other.__class__, locals() | self.model._model_clss
+        )
         type_hint = type_hints[self.backref]
         list_model_types = (
             list[self._model_class], list[self._model_class.__name__]
