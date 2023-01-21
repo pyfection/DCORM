@@ -41,17 +41,21 @@ def register(
 
 class Model:
     _db = None  # Set by register decorator
+    _model_clss = {}  # All registered model classes
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
         cls._cache = list()
         cls._in_db = False
         cls.savable = True
+        cls._model_clss[cls.__name__] = cls
         return cls
 
     def __post_init__(self):
         self._cache.append(self)
-        for attr, type_hint in get_type_hints(self.__class__).items():
+        for attr, type_hint in get_type_hints(
+            self.__class__, locals() | self._model_clss
+        ).items():
             value = getattr(self, attr)
             if issubclass(type_hint, Model):
                 field = self.__class__.__dict__[attr]
@@ -61,7 +65,9 @@ class Model:
 
     @classmethod
     def from_json(cls, **data):
-        type_hints = get_type_hints(cls)
+        type_hints = get_type_hints(
+            cls, locals() | cls._model_clss
+        )
         for key, value in data.items():
             type_hint = type_hints[key]
             if type(value) is not type_hint:
