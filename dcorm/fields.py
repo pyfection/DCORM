@@ -7,6 +7,8 @@ class Field:
     default: Any = None
     default_factory: Callable = None
     null: bool = False
+    backref: str = None
+    model = None
     _initialized = False
 
     def __call__(self, *args, **kwargs):
@@ -32,18 +34,19 @@ class Field:
 
         type_hints = get_type_hints(value.__class__)
         name = instance.__class__.__name__.lower()
-        backref = type_hints.get(name)
-        if not backref:
+        rel_cls = type_hints.get(name)
+        if not rel_cls:
             name = f"{name}s"
-            backref = type_hints.get(name)
-            if not backref:
+            rel_cls = type_hints.get(name)
+            if not rel_cls:
                 raise ValueError("No backref found")  # ToDo: improve error
         descriptor = value.__class__.__dict__[name]
         if isinstance(descriptor, Collection):
             if self.model not in descriptor:
                 descriptor.append(self.model)
         elif isinstance(descriptor, Field):
-            setattr(value, backref, self)
+            if getattr(value, name) is not instance:
+                setattr(value, name, instance)
         else:
             raise ValueError("Backref of wrong format")  # ToDo: improve error
 
@@ -55,6 +58,7 @@ class Field:
 class Collection:
     backref: str
     relationships: list = field(default_factory=list)
+    model = None
 
     def __set_name__(self, owner, name):
         self._model_class = owner

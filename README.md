@@ -34,7 +34,6 @@ have a one-way connection to the other model.
 `Collection`s are a many-to relationship to the model
 specified in the type annotation. The `backref` marks
 which field it is connected to in the other model.
-Only one-to-many relationships are possible at the moment.
 ```python
 from uuid import UUID, uuid4
 

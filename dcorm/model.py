@@ -50,27 +50,21 @@ class Model:
         return cls
 
     def __post_init__(self):
+        self._cache.append(self)
         for attr, type_hint in get_type_hints(self.__class__).items():
             value = getattr(self, attr)
             if issubclass(type_hint, Model):
                 field = self.__class__.__dict__[attr]
                 field.model = self
-                if value:
-                    self.backlink(value)
             if isinstance(value, Collection):
                 value.model = self
-        self._cache.append(self)
 
     @classmethod
     def from_json(cls, **data):
         type_hints = get_type_hints(cls)
         for key, value in data.items():
             type_hint = type_hints[key]
-            if issubclass(type_hint, Model):
-                # Get model from relation ID
-                relation = type_hint.get(id=value)
-                data[key] = relation
-            elif type(value) is not type_hint:
+            if type(value) is not type_hint:
                 # Convert to annotated type
                 data[key] = type_hint(value)
 
@@ -104,9 +98,6 @@ class Model:
     @property
     def table_name(self):
         return self.__class__.__name__.lower()
-
-    def backlink(self, relation):
-        setattr(relation, self.table_name, self)
 
     def clone(self, savable=False):
         """Creates a clone of this model instance."""
