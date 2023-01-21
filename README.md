@@ -37,18 +37,18 @@ which field it is connected to in the other model.
 ```python
 from uuid import UUID, uuid4
 
-from dcorm import Field, Collection, register, Model
+from dcorm import Field, Collection, register
 
 
-@register(db=db)
-class User(Model):
+@register(db)
+class User:
     id: UUID = Field(default_factory=uuid4)
     name: str = Field()
     class_: 'Class' = Field(null=True)
 
 
-@register(db=db)
-class Class(Model):
+@register(db)
+class Class:
     id: UUID = Field(default_factory=uuid4)
     users: list[User] = Collection(backref="class_")
     name: str = Field()
