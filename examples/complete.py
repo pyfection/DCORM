@@ -39,7 +39,7 @@ print("Done")
 
 # Save into database
 user.save()
-class_.save()
+# class_.save()
 
 
 # ToDo: get multiple objects from DB

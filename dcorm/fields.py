@@ -18,16 +18,11 @@ class Field:
     def __set__(self, instance, value):
         from dcorm import Model
 
-        save_relation = False
-
         if value is None:
             if self.default:
                 value = self.default
             elif self.default_factory:
                 value = self.default_factory()
-                # ToDo: once #1 is solved, remove next two lines
-                if isinstance(value, Model):
-                    save_relation = True
         self._value = value
 
         if not issubclass(value.__class__, Model):
@@ -52,8 +47,6 @@ class Field:
                 setattr(value, name, instance)
         else:
             raise ValueError("Backref of wrong format")  # ToDo: improve error
-        if save_relation:
-            self._value.save()
 
     def __get__(self, instance, owner):
         return self._value

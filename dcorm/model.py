@@ -105,6 +105,21 @@ class Model:
     def table_name(self):
         return self.__class__.__name__.lower()
 
+    @property
+    def relations(self):
+        for cls_ in self.__class__.mro()[::-1]:
+            for key, type_ in cls_.__dict__.items():
+                if isinstance(type_, Field):
+                    type_hints = get_type_hints(
+                        self, locals() | self._model_clss
+                    )
+                    if issubclass(type_hints[key], Model):
+                        yield getattr(self, key)
+                elif isinstance(type_, Collection):
+                    relations = getattr(self, key).relationships
+                    for relation in relations:
+                        yield relation
+
     def clone(self, savable=False):
         """Creates a clone of this model instance."""
         # ToDo: consider how to clone relationships
@@ -116,6 +131,10 @@ class Model:
         if self.savable:
             self._db.save(self)
             self._in_db = True
+            for relation in self.relations:
+                if not relation._in_db:
+                    relation.save()
+
         # ToDo: throw error for else
 
 
