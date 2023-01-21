@@ -39,12 +39,15 @@ def register(
     return wrap
 
 
-@dataclass
 class Model:
-    savable: bool = True
     _db = None  # Set by register decorator
-    _in_db = False
-    _cache = list()
+
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        cls._cache = list()
+        cls._in_db = False
+        cls.savable = True
+        return cls
 
     def __post_init__(self):
         for attr, type_hint in get_type_hints(self.__class__).items():
@@ -66,7 +69,6 @@ class Model:
             if issubclass(type_hint, Model):
                 # Get model from relation ID
                 relation = type_hint.get(id=value)
-                # ToDo: figure out backref
                 data[key] = relation
             elif type(value) is not type_hint:
                 # Convert to annotated type
@@ -124,10 +126,10 @@ def _register(
     cls, db, init, repr, eq, order, unsafe_hash,
     frozen, match_args, kw_only, slots
 ):
-    model = _process_class(
+    cls = _process_class(
         cls, init, repr, eq, order, unsafe_hash,
         frozen, match_args, kw_only, slots
     )
-    model._db = db
-    db.create(model)
-    return model
+    cls._db = db
+    db.create(cls)
+    return cls

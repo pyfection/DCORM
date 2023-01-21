@@ -15,14 +15,14 @@ db = SQLite3(db_name)
 
 
 # Create Models
-@register(db=db)
+@register(db)
 class User(Model):
     id: UUID = Field(default_factory=uuid4)
     name: str = Field()
     class_: 'Class' = Field(null=True)
 
 
-@register(db=db)
+@register(db)
 class Class(Model):
     id: UUID = Field(default_factory=uuid4)
     users: list[User] = Collection(backref="class_")
