@@ -8,7 +8,6 @@ class Field:
     default_factory: Callable = None
     null: bool = False
     backref: str = None
-    model = None
 
     def __set_name__(self, owner, name):
         self._owner = owner
@@ -45,8 +44,8 @@ class Field:
                 raise ValueError("No backref found")  # ToDo: improve error
         descriptor = value.__class__.__dict__[name]
         if isinstance(descriptor, Collection):
-            if self.model not in descriptor:
-                descriptor.append(self.model)
+            if instance not in descriptor:
+                descriptor.append(instance)
         elif isinstance(descriptor, Field):
             if getattr(value, name) is not instance:
                 setattr(value, name, instance)
