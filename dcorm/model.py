@@ -57,10 +57,9 @@ class Model:
             self.__class__, locals() | self._model_clss
         ).items():
             value = getattr(self, attr)
-            if issubclass(type_hint, Model):
+            if isinstance(value, Field) and issubclass(type_hint, Model):
                 field = self.__class__.__dict__[attr]
-                field.model = self
-            if isinstance(value, Collection):
+            elif isinstance(value, Collection):
                 value.model = self
 
     @classmethod
