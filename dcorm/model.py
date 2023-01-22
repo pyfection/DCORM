@@ -57,22 +57,20 @@ class Model:
             self.__class__, locals() | self._model_clss
         ).items():
             value = getattr(self, attr)
-            if isinstance(value, Field) and issubclass(type_hint, Model):
-                field = self.__class__.__dict__[attr]
+            is_field = isinstance(self.__class__.__dict__[attr], Field)
+            if is_field and issubclass(type_hint, Model):
+                # Load relationship
+                relation = getattr(self, attr)
+                assert value is not None
+                if getattr(relation, "id", None) is not value:
+                    # Only set if it's not set already
+                    relation = type_hint.get(id=value)
+                    setattr(self, attr, relation)
             elif isinstance(value, Collection):
                 value.model = self
 
     @classmethod
     def from_json(cls, **data):
-        type_hints = get_type_hints(
-            cls, locals() | cls._model_clss
-        )
-        for key, value in data.items():
-            type_hint = type_hints[key]
-            if type(value) is not type_hint:
-                # Convert to annotated type
-                data[key] = type_hint(value)
-
         return cls(**data)
 
     @classmethod

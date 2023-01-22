@@ -18,8 +18,15 @@ class SQLite3(Mapper):
 
     def get(self, model_cls: Type[Model], query=None, **filters):
         table = model_cls.__name__.lower()
+        type_mapper = {
+            UUID: str,
+        }
+        filters_ = {
+            k: type_mapper.get(type(v), lambda v_: v_)(v)
+            for k, v in filters.items()
+        }
         filters_ = ", ".join(
-            f"{k}={repr(v)}" for k, v in filters.items()
+            f"{k}={repr(v)}" for k, v in filters_.items()
         )
         sql = "\n".join((
             "SELECT *"
