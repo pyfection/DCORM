@@ -34,11 +34,11 @@ class Field:
         # Convert values if necessary, such as str to UUID
         if issubclass(type_hint, Model):
             # Is a relationship
+            type_hint = get_type_hints(
+                type_hint, locals() | Model._model_clss
+            )["id"]
             if type_hint is not type(value):
                 # Relationship not set yet
-                type_hint = get_type_hints(
-                    type_hint, locals() | Model._model_clss
-                )["id"]
                 value = type_hint(value)
             # else: relationship is already set
         elif type_hint is not type(value):
