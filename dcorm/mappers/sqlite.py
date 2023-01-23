@@ -1,4 +1,5 @@
 import sqlite3
+from enum import Enum
 from sqlite3 import OperationalError
 from typing import Type
 from uuid import UUID
@@ -16,13 +17,17 @@ class SQLite3(Mapper):
             UUID: str,
         }
 
+    def _convert_type(self, value):
+        if isinstance(value, UUID):
+            return str(value)
+        elif isinstance(value, Enum):
+            return value.value
+        return value
+
     def get(self, model_cls: Type[Model], query=None, **filters):
         table = model_cls.__name__.lower()
-        type_mapper = {
-            UUID: str,
-        }
         filters_ = {
-            k: type_mapper.get(type(v), lambda v_: v_)(v)
+            k: self._convert_type(v)
             for k, v in filters.items()
         }
         filters_ = ", ".join(
