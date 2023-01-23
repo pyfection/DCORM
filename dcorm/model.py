@@ -58,15 +58,18 @@ class Model:
         ).items():
             value = getattr(self, attr)
             is_field = isinstance(self.__class__.__dict__[attr], Field)
-            is_set = isinstance(value, type_hint)
-            if is_field and not is_set and issubclass(type_hint, Model):
-                # Load relationship
-                relation = getattr(self, attr)
-                assert value is not None
-                if getattr(relation, "id", None) is not value:
-                    # Only set if it's not set already
-                    relation = type_hint.get(id=value)
-                    setattr(self, attr, relation)
+            if is_field:
+                is_set = isinstance(value, type_hint)
+                # is_set is inside this if, because it will raise erros if type
+                # hint is something like list[Model]
+                if not is_set and issubclass(type_hint, Model):
+                    # Load relationship
+                    relation = getattr(self, attr)
+                    assert value is not None
+                    if getattr(relation, "id", None) is not value:
+                        # Only set if it's not set already
+                        relation = type_hint.get(id=value)
+                        setattr(self, attr, relation)
             elif isinstance(value, Collection):
                 value.model = self
 
