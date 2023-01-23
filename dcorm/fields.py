@@ -32,7 +32,10 @@ class Field:
                     value = type_hint()
 
         # Convert values if necessary, such as str to UUID
-        if issubclass(type_hint, Model):
+        if value is None:
+            # Don't convert
+            pass
+        elif issubclass(type_hint, Model):
             # Is a relationship
             rel_type_hint = get_type_hints(
                 type_hint, locals() | Model._model_clss
