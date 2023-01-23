@@ -58,7 +58,8 @@ class Model:
         ).items():
             value = getattr(self, attr)
             is_field = isinstance(self.__class__.__dict__[attr], Field)
-            if is_field and issubclass(type_hint, Model):
+            is_set = isinstance(value, type_hint)
+            if is_field and not is_set and issubclass(type_hint, Model):
                 # Load relationship
                 relation = getattr(self, attr)
                 assert value is not None
