@@ -13,11 +13,8 @@ class SQLite3(Mapper):
         self.db_path = db_path
         self.con = sqlite3.connect(db_path)
         self.cur = self.con.cursor()
-        self.types_map = {
-            UUID: str,
-        }
 
-    def _convert_type(self, value):
+    def _serealize_type(self, value):
         if isinstance(value, UUID):
             return str(value)
         elif isinstance(value, Enum):
@@ -26,8 +23,9 @@ class SQLite3(Mapper):
 
     def get(self, model_cls: Type[Model], query=None, **filters):
         table = model_cls.__name__.lower()
+
         filters_ = {
-            k: self._convert_type(v)
+            k: self._serealize_type(v)
             for k, v in filters.items()
         }
         filters_ = ", ".join(
@@ -69,9 +67,7 @@ class SQLite3(Mapper):
         ]
         # Converting
         data = [
-            self.types_map.get(
-                type(value), lambda v: v
-            )(value)
+            self._serealize_type(value)
             for value in data
         ]
         if model._in_db:
