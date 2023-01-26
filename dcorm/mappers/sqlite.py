@@ -1,7 +1,7 @@
 import sqlite3
 from enum import Enum
 from sqlite3 import OperationalError
-from typing import Type
+from typing import Type, Iterator
 from uuid import UUID
 
 from dcorm import Model
@@ -21,7 +21,7 @@ class SQLite3(Mapper):
             return value.value
         return value
 
-    def get(self, model_cls: Type[Model], query=None, **filters):
+    def _filter(self, model_cls: Type[Model], **filters):
         table = model_cls.__name__.lower()
 
         filters_ = {
@@ -36,7 +36,10 @@ class SQLite3(Mapper):
             f"FROM {table}",
             f"WHERE {filters_}",
         ))
-        res = self.cur.execute(sql)
+        return self.cur.execute(sql)
+
+    def get(self, model_cls: Type[Model], query=None, **filters) -> Model:
+        res = self._filter(model_cls, **filters)
         data = res.fetchone()
         if not data:
             return None
@@ -44,6 +47,15 @@ class SQLite3(Mapper):
         model = model_cls.from_json(**data)
         model._in_db = True
         return model
+
+    def find(self, model_cls: Type[Model], query=None, **filters) -> Iterator[Model]:
+        res = self._filter(model_cls, **filters)
+        datas = res.fetchall()
+        for data in datas:
+            data = dict(zip(model_cls._fields(), data))
+            model = model_cls.from_json(**data)
+            model._in_db = True
+            yield model
 
     def create(self, model: Type[Model]):
         attrs = list(model._fields())

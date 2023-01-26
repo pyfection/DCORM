@@ -1,6 +1,6 @@
 from copy import deepcopy
 from dataclasses import _process_class
-from typing import get_type_hints
+from typing import get_type_hints, get_args
 
 from dcorm import Field, Collection
 from dcorm.mappers.base import Mapper
@@ -71,6 +71,14 @@ class Model:
                         setattr(self, attr, relation)
             elif isinstance(value, Collection):
                 value.model = self
+                # Load relationships
+                th = get_args(type_hint)[0]
+                # ToDo: call find on self, not on db directly
+                filters = {value.backref: self.id}
+                list(self._db.find(th, **filters))
+                # Adding the relationships found to the collection is automatic
+                # through the relation finding of the related field
+                # ToDo: If relation is though a collection too, append it
 
     @classmethod
     def from_json(cls, **data):
