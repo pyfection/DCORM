@@ -1,4 +1,5 @@
 import os
+from enum import Enum
 from uuid import UUID, uuid4
 
 from dcorm import Field, Collection, register, Model
@@ -14,12 +15,19 @@ except FileNotFoundError:
 db = SQLite3(db_name)
 
 
+class Rank(Enum):
+    FIRST = "first"
+    SECOND = "second"
+    THIRD = "third"
+
+
 # Create Models
 @register(db)
 class User(Model):
     id: UUID = Field(default_factory=uuid4)
     name: str = Field()
     class_: 'Class' = Field(null=True)
+    rank: Rank = Field()
 
 
 @register(db)
