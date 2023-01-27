@@ -97,5 +97,6 @@ class SQLite3(Mapper):
                 f"INSERT INTO {table}",
                 f"VALUES {tuple(data)}"
             ))
+        sql = sql.replace("None", "NULL")
         self.cur.execute(sql)
         self.con.commit()
