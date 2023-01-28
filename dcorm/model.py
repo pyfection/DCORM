@@ -110,7 +110,9 @@ class Model:
         raw_instances = cls._db.find(cls, query, **filters)
         for data in raw_instances:
             if data["id"] not in instances_found:
-                instances_found[data["id"]] = cls.from_json(**data)
+                instance = cls.from_json(**data)
+                instance._in_db = True
+                instances_found[data["id"]] = instance
         return list(instances_found.values())
 
     @classmethod

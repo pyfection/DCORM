@@ -54,7 +54,6 @@ class SQLite3(Mapper):
         datas = res.fetchall()
         for data in datas:
             data = dict(zip(model_cls._fields(), data))
-            data["_in_db"] = True
             yield data
 
     def create(self, model: Type[Model]):
