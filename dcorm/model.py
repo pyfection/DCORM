@@ -158,6 +158,12 @@ def _register(
     __old_init__ = cls.__init__
     def __pre_init__(inst, *args, **kwargs):
         inst._descriptor_values = {}
+        for attr, type_hint in get_type_hints(
+            inst.__class__, locals() | inst._model_clss
+        ).items():
+            value = getattr(inst, attr)
+            if isinstance(value, Collection):
+                setattr(inst, attr, deepcopy(value))
         __old_init__(inst, *args, **kwargs)
     cls.__init__ = __pre_init__
     db.create(cls)
