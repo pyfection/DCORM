@@ -92,6 +92,9 @@ class Collection:
         self._model_class = owner
         self._field_name = name
 
+    def __getitem__(self, item):
+        return self.relationships[item]
+
     def __contains__(self, item):
         return item in self.relationships
 
