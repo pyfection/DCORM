@@ -39,6 +39,7 @@ class SQLite3(Mapper):
         return self.cur.execute(sql)
 
     def get(self, model_cls: Type[Model], query=None, **filters) -> Model:
+        # ToDo: return data instead of Model
         res = self._filter(model_cls, **filters)
         data = res.fetchone()
         if not data:
@@ -53,9 +54,8 @@ class SQLite3(Mapper):
         datas = res.fetchall()
         for data in datas:
             data = dict(zip(model_cls._fields(), data))
-            model = model_cls.from_json(**data)
-            model._in_db = True
-            yield model
+            data["_in_db"] = True
+            yield data
 
     def create(self, model: Type[Model]):
         attrs = list(model._fields())

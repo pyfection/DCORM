@@ -73,12 +73,11 @@ class Model:
                 value.model = self
                 # Load relationships
                 th = get_args(type_hint)[0]
-                # ToDo: call find on self, not on db directly
                 filters = {value.backref: self.id}
-                list(self._db.find(th, **filters))
                 # Adding the relationships found to the collection is automatic
                 # through the relation finding of the related field
-                # ToDo: If relation is though a collection too, append it
+                for rel in th.find(**filters):
+                    ...  # ToDo: If relation is though a collection too, append it
 
     @classmethod
     def from_json(cls, **data):
@@ -94,6 +93,27 @@ class Model:
         ]
 
     @classmethod
+    def find(cls, query=None, **filters):
+        if query:
+            raise NotImplementedError(
+                "Function-like queries are not supported yet!"
+            )
+
+        instances_found = {}
+        for instance in cls._cache:
+            for key, value in filters.items():
+                if getattr(instance, key) != value:
+                    break
+            else:
+                instances_found[str(instance.id)] = instance
+
+        raw_instances = cls._db.find(cls, query, **filters)
+        for data in raw_instances:
+            if data["id"] not in instances_found:
+                instances_found[data["id"]] = cls.from_json(**data)
+        return list(instances_found.values())
+
+    @classmethod
     def get(cls, query=None, **filters):
         if query:
             raise NotImplementedError(
@@ -107,6 +127,7 @@ class Model:
             else:
                 return instance
 
+        # ToDo: get data and load it with cls.from_json
         return cls._db.get(cls, query, **filters)
 
     @property
@@ -122,7 +143,9 @@ class Model:
                         self, locals() | self._model_clss
                     )
                     if issubclass(type_hints[key], Model):
-                        yield getattr(self, key)
+                        value = getattr(self, key)
+                        if isinstance(value, Model):
+                            yield value
                 elif isinstance(type_, Collection):
                     relations = getattr(self, key).relationships
                     for relation in relations:
@@ -158,13 +181,14 @@ def _register(
     __old_init__ = cls.__init__
     def __pre_init__(inst, *args, **kwargs):
         inst._descriptor_values = {}
+        __old_init__(inst, *args, **kwargs)
         for attr, type_hint in get_type_hints(
             inst.__class__, locals() | inst._model_clss
         ).items():
             value = getattr(inst, attr)
             if isinstance(value, Collection):
-                setattr(inst, attr, deepcopy(value))
-        __old_init__(inst, *args, **kwargs)
+                copy = deepcopy(value)
+                setattr(inst, attr, copy)
     cls.__init__ = __pre_init__
     db.create(cls)
     return cls

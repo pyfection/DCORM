@@ -119,7 +119,7 @@ class Collection:
             other_collection = getattr(other, self.backref)
             if self.model not in other_collection:
                 other_collection.append(self.model)
-            ...
+
         elif type_hint is self._model_class:
             # many-to-one relationship
             setattr(other, self.backref, self.model)
