@@ -59,12 +59,6 @@ class Field:
             value.__class__, locals() | Model._model_clss
         )
         name = self.backref or instance.__class__.__name__.lower()
-        rel_cls = type_hints.get(name)
-        if not rel_cls:
-            name = f"{name}s"
-            rel_cls = type_hints.get(name)
-            if not rel_cls:
-                raise ValueError("No backref found")  # ToDo: improve error
         descriptor = value.__class__.__dict__[name]
         if isinstance(descriptor, Collection):
             if instance not in descriptor:
