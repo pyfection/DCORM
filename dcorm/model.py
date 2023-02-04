@@ -132,6 +132,11 @@ class Model:
         # ToDo: get data and load it with cls.from_json
         return cls._db.get(cls, query, **filters)
 
+    @classmethod
+    def all(cls):
+        """All instances of this model."""
+        return cls.find()
+
     @property
     def table_name(self):
         return self.__class__.__name__.lower()
