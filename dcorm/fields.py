@@ -22,7 +22,7 @@ class Field:
 
         # Set default values
         if value is None:
-            if self.default:
+            if self.default is not None:
                 value = self.default
             elif self.default_factory:
                 # This may also create a Model
