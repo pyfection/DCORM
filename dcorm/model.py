@@ -70,6 +70,8 @@ class Model:
                         relation = type_hint.get(id=value)
                         setattr(self, attr, relation)
             elif isinstance(value, Collection):
+                value = deepcopy(value)
+                setattr(self, attr, value)
                 value.model = self
                 # Load relationships
                 th = get_args(type_hint)[0]
@@ -190,13 +192,6 @@ def _register(
     def __pre_init__(inst, *args, **kwargs):
         inst._descriptor_values = {}
         __old_init__(inst, *args, **kwargs)
-        for attr, type_hint in get_type_hints(
-            inst.__class__, locals() | inst._model_clss
-        ).items():
-            value = getattr(inst, attr)
-            if isinstance(value, Collection):
-                copy = deepcopy(value)
-                setattr(inst, attr, copy)
     cls.__init__ = __pre_init__
     db.create(cls)
     return cls
