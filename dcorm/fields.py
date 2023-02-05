@@ -45,6 +45,7 @@ class Field:
                 pass
             elif rel_type_hint is not type(value):
                 # Relationship not set yet
+                # Will be properly set on post init of model
                 value = rel_type_hint(value)
         elif type_hint is not type(value):
             value = type_hint(value)
@@ -102,6 +103,16 @@ class Collection:
 
     def __iter__(self):
         return iter(self.relationships)
+
+    def remove(self, item):
+        self.relationships.remove(item)
+        descriptor = item.__class__.__dict__[self.backref]
+        if isinstance(descriptor, Field):
+            setattr(item, self.backref, None)
+        elif isinstance(descriptor, Collection):
+            collection = getattr(item, self.backref)
+            if self in collection:
+                collection.remove(self)
 
     def append(self, other):
         self.relationships.append(other)
