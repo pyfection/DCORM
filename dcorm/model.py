@@ -77,7 +77,8 @@ class Model:
                 # Adding the relationships found to the collection is automatic
                 # through the relation finding of the related field
                 for rel in th.find(**filters):
-                    ...  # ToDo: If relation is though a collection too, append it
+                    if rel not in value:
+                        value.append(rel)
 
     @classmethod
     def from_json(cls, **data):
