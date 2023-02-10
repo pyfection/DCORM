@@ -60,20 +60,23 @@ class Field:
             value.__class__, locals() | Model._model_clss
         )
         name = self.backref or instance.__class__.__name__.lower()
-        try:
-            descriptor = value.__class__.__dict__[name]
-        except KeyError:
-            pass  # No back reference
-        else:
-            # Set back relationship
-            if isinstance(descriptor, Collection):
-                if instance not in descriptor:
-                    descriptor.append(instance)
-            elif isinstance(descriptor, Field):
-                if getattr(value, name) is not instance:
-                    setattr(value, name, instance)
+        descriptor = getattr(value, name, None)
+        if isinstance(descriptor, Collection):
+            # Set back relationship one-to-many
+            if instance not in descriptor:
+                descriptor.append(instance)
+        else:  # Try to get Field backref
+            try:
+                descriptor = value.__class__.__dict__[name]
+            except KeyError:
+                pass  # No back reference
             else:
-                raise ValueError("Backref of wrong format")  # ToDo: improve error
+                # Set back relationship
+                if isinstance(descriptor, Field):
+                    if getattr(value, name) is not instance:
+                        setattr(value, name, instance)
+                else:
+                    raise ValueError("Backref of wrong format")  # ToDo: improve error
 
     def __get__(self, instance, owner):
         try:
