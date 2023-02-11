@@ -52,6 +52,7 @@ class Field:
 
         # Save value to instance
         instance._descriptor_values[self._name] = value
+        instance._has_unsaved_changes = True
 
         if not issubclass(value.__class__, Model):
             return
@@ -116,6 +117,7 @@ class Collection:
             collection = getattr(item, self.backref)
             if self in collection:
                 collection.remove(self)
+        self.model._has_unsaved_changes = True
 
     def append(self, other):
         self.relationships.append(other)
@@ -138,3 +140,4 @@ class Collection:
             setattr(other, self.backref, self.model)
         else:
             raise ValueError("Backref isn't of the right type")
+        self.model._has_unsaved_changes = True

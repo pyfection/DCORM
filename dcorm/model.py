@@ -42,6 +42,7 @@ def register(
 class Model:
     _db = None  # Set by register decorator
     _model_clss = {}  # All registered model classes
+    _has_unsaved_changes = False
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -168,13 +169,15 @@ class Model:
         copy.savable = savable
         return copy
 
-    def save(self):
-        if self.savable:
-            self._db.save(self)
-            self._in_db = True
+    def save(self, *, exclude_ids=None):
+        exclude_ids = exclude_ids.append(self.id) if exclude_ids else [self.id]
+        if self.savable and self.id not in exclude_ids:
+            if self._has_unsaved_changes:
+                self._db.save(self)
+                self._has_unsaved_changes = False
+                self._in_db = True
             for relation in self.relations:
-                if not relation._in_db:
-                    relation.save()
+                relation.save(exclude_ids=exclude_ids)
 
         # ToDo: throw error for else
 
