@@ -170,12 +170,13 @@ class Model:
         return copy
 
     def save(self, *, exclude_ids=None):
-        exclude_ids = exclude_ids.append(self.id) if exclude_ids else [self.id]
+        exclude_ids = exclude_ids or []
         if self.savable and self.id not in exclude_ids:
             if self._has_unsaved_changes:
                 self._db.save(self)
                 self._has_unsaved_changes = False
                 self._in_db = True
+            exclude_ids.append(self.id)
             for relation in self.relations:
                 relation.save(exclude_ids=exclude_ids)
 
