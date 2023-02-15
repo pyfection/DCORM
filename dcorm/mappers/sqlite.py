@@ -34,7 +34,7 @@ class SQLite3(Mapper):
         sql = "\n".join((
             "SELECT *"
             f"FROM {table}",
-            f"WHERE {filters_}" if filters_ else "",
+            f"WHERE ({filters_})" if filters_ else "",
         ))
         try:
             return self.cur.execute(sql)
