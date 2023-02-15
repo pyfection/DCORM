@@ -36,7 +36,10 @@ class SQLite3(Mapper):
             f"FROM {table}",
             f"WHERE {filters_}" if filters_ else "",
         ))
-        return self.cur.execute(sql)
+        try:
+            return self.cur.execute(sql)
+        except OperationalError as exc:
+            raise OperationalError(f"Bad format '{sql}'") from exc
 
     def get(self, model_cls: Type[Model], query=None, **filters) -> Model:
         # ToDo: return data instead of Model
