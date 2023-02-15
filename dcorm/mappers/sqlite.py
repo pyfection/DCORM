@@ -28,13 +28,13 @@ class SQLite3(Mapper):
             k: self._serealize_type(v)
             for k, v in filters.items()
         }
-        filters_ = ", ".join(
+        filters_ = " AND ".join(
             f"{k}={repr(v)}" for k, v in filters_.items()
         )
         sql = "\n".join((
             "SELECT *"
             f"FROM {table}",
-            f"WHERE ({filters_})" if filters_ else "",
+            f"WHERE {filters_}" if filters_ else "",
         ))
         try:
             return self.cur.execute(sql)
