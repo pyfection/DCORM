@@ -68,7 +68,7 @@ class Field:
                 descriptor.append(instance)
         else:  # Try to get Field backref
             try:
-                descriptor = value.__class__.__dict__[name]
+                descriptor = value.fields()[name]
             except KeyError:
                 pass  # No back reference
             else:
@@ -110,7 +110,7 @@ class Collection:
 
     def remove(self, item):
         self.relationships.remove(item)
-        descriptor = item.__class__.__dict__[self.backref]
+        descriptor = item.fields()[self.backref]
         if isinstance(descriptor, Field):
             setattr(item, self.backref, None)
         elif isinstance(descriptor, Collection):

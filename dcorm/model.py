@@ -1,6 +1,6 @@
 from copy import deepcopy
 from dataclasses import _process_class
-from typing import get_type_hints, get_args
+from typing import get_type_hints, get_args, Any
 
 from dcorm import Field, Collection
 from dcorm.mappers.base import Mapper
@@ -58,7 +58,7 @@ class Model:
             self.__class__, locals() | self._model_clss
         ).items():
             value = getattr(self, attr)
-            is_field = isinstance(self.__class__.__dict__[attr], Field)
+            is_field = isinstance(self.fields()[attr], Field)
             if value is not None and is_field:
                 is_set = isinstance(value, type_hint)
                 # is_set is inside this if, because it will raise erros if type
@@ -88,13 +88,13 @@ class Model:
         return cls(**data)
 
     @classmethod
-    def _fields(cls):
-        return [
-            key
+    def fields(cls) -> dict[str, Any]:
+        return {
+            key: value
             for cls_ in cls.mro()[::-1]
             for key, value in cls_.__dict__.items()
             if isinstance(value, Field)
-        ]
+        }
 
     @classmethod
     def find(cls, query=None, **filters):

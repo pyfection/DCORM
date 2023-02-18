@@ -47,7 +47,7 @@ class SQLite3(Mapper):
         data = res.fetchone()
         if not data:
             return None
-        data = dict(zip(model_cls._fields(), data))
+        data = dict(zip(model_cls.fields().keys(), data))
         model = model_cls.from_json(**data)
         model._in_db = True
         return model
@@ -56,11 +56,11 @@ class SQLite3(Mapper):
         res = self._filter(model_cls, **filters)
         datas = res.fetchall()
         for data in datas:
-            data = dict(zip(model_cls._fields(), data))
+            data = dict(zip(model_cls.fields().keys(), data))
             yield data
 
     def create(self, model: Type[Model]):
-        attrs = list(model._fields())
+        attrs = list(model.fields().keys())
         table = model.__name__.lower()
         try:
             self.cur.execute(
@@ -71,7 +71,7 @@ class SQLite3(Mapper):
 
     def save(self, model: Model):
         table = model.table_name
-        attrs = list(model._fields())
+        attrs = list(model.fields().keys())
         if model._in_db:
             attrs.remove("id")
         data = [getattr(model, attr) for attr in attrs]
