@@ -58,7 +58,7 @@ class Model:
             self.__class__, locals() | self._model_clss
         ).items():
             value = getattr(self, attr)
-            is_field = isinstance(self.fields()[attr], Field)
+            is_field = attr in self.fields()
             if value is not None and is_field:
                 is_set = isinstance(value, type_hint)
                 # is_set is inside this if, because it will raise erros if type
@@ -94,6 +94,15 @@ class Model:
             for cls_ in cls.mro()[::-1]
             for key, value in cls_.__dict__.items()
             if isinstance(value, Field)
+        }
+
+    @classmethod
+    def collections(cls) -> dict[str, Any]:
+        return {
+            key: value
+            for cls_ in cls.mro()[::-1]
+            for key, value in cls_.__dict__.items()
+            if isinstance(value, Collection)
         }
 
     @classmethod

@@ -110,10 +110,9 @@ class Collection:
 
     def remove(self, item):
         self.relationships.remove(item)
-        descriptor = item.fields()[self.backref]
-        if isinstance(descriptor, Field):
+        if self.backref in item.fields():
             setattr(item, self.backref, None)
-        elif isinstance(descriptor, Collection):
+        elif self.backref in item.collections():
             collection = getattr(item, self.backref)
             if self in collection:
                 collection.remove(self)
