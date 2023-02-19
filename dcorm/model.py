@@ -61,7 +61,7 @@ class Model:
                 is_set = isinstance(value, type_hint)
                 # is_set is inside this if, because it will raise erros if type
                 # hint is something like list[Model]
-                if not is_set and issubclass(type_hint, Model):
+                if not is_set and issubclass(type_hint, Model) and type_hint._db:
                     # Load relationship
                     relation = getattr(self, attr)
                     if getattr(relation, "id", None) is not value:
