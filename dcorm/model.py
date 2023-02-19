@@ -54,9 +54,7 @@ class Model:
 
     def __post_init__(self):
         self._cache.append(self)
-        for attr, type_hint in get_type_hints(
-            self.__class__, locals() | self._model_clss
-        ).items():
+        for attr, type_hint in self.type_hints.items():
             value = getattr(self, attr)
             is_field = attr in self.fields()
             if value is not None and is_field:
@@ -159,9 +157,7 @@ class Model:
         for cls_ in self.__class__.mro()[::-1]:
             for key, type_ in cls_.__dict__.items():
                 if isinstance(type_, Field):
-                    type_hints = get_type_hints(
-                        self, locals() | self._model_clss
-                    )
+                    type_hints = self.type_hints
                     if issubclass(type_hints[key], Model):
                         value = getattr(self, key)
                         if isinstance(value, Model):
@@ -170,6 +166,15 @@ class Model:
                     relations = getattr(self, key).relationships
                     for relation in relations:
                         yield relation
+
+    @property
+    def type_hints(self):
+        result = {}
+        for cls in self.__class__.mro():
+            result.update(
+                get_type_hints(cls)
+            )
+        return result
 
     def clone(self, savable=False):
         """Creates a clone of this model instance."""
