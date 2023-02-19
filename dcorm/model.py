@@ -172,7 +172,7 @@ class Model:
         result = {}
         for cls in self.__class__.mro():
             result.update(
-                get_type_hints(cls)
+                get_type_hints(cls, self._model_clss)
             )
         return result
 
