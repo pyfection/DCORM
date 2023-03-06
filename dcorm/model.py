@@ -74,6 +74,9 @@ class Model:
                 value.model = self
                 # Load relationships
                 th = get_args(type_hint)[0]
+                if isinstance(th, str):
+                    # Convert it to object
+                    th = self._model_clss[th]
                 filters = {value.backref: self.id}
                 # Adding the relationships found to the collection is automatic
                 # through the relation finding of the related field
