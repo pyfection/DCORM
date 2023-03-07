@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from datetime import datetime
 from typing import Any, Callable, get_type_hints
 
 
@@ -48,7 +49,10 @@ class Field:
                 # Will be properly set on post init of model
                 value = rel_type_hint(value)
         elif type_hint is not type(value):
-            value = type_hint(value)
+            if issubclass(type_hint, datetime):
+                value = datetime.fromtimestamp(value)
+            else:
+                value = type_hint(value)
 
         # Save value to instance
         instance._descriptor_values[self._name] = value

@@ -1,4 +1,5 @@
 import sqlite3
+from datetime import datetime
 from enum import Enum
 from sqlite3 import OperationalError
 from typing import Type, Iterator
@@ -19,6 +20,8 @@ class SQLite3(Mapper):
             return str(value)
         elif isinstance(value, Enum):
             return value.value
+        elif isinstance(value, datetime):
+            return value.timestamp()
         return value
 
     def _filter(self, model_cls: Type[Model], **filters):
