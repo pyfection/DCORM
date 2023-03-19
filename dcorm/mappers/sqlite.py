@@ -63,7 +63,7 @@ class SQLite3(Mapper):
             yield data
 
     def create(self, model: Type[Model]):
-        attrs = list(f"`{k}`" for k in model.fields().keys())
+        attrs = list(model.fields().keys())
         table = model.__name__.lower()
         try:
             self.cur.execute(
@@ -99,7 +99,7 @@ class SQLite3(Mapper):
             ))
         else:
             sql = "\n".join((
-                f"INSERT INTO {table}",
+                f"INSERT INTO `{table}`",
                 f"VALUES {tuple(data)}"
             ))
         sql = sql.replace("None", "NULL")
