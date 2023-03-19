@@ -32,7 +32,7 @@ class SQLite3(Mapper):
             for k, v in filters.items()
         }
         filters_ = " AND ".join(
-            f"{k}={repr(v)}" for k, v in filters_.items()
+            f"'{k}'={repr(v)}" for k, v in filters_.items()
         )
         sql = "\n".join((
             "SELECT *"
