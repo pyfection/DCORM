@@ -92,7 +92,7 @@ class SQLite3(Mapper):
                 f"UPDATE {table}",
                 "SET",
                 " , ".join(
-                    f"{attr} = {repr(value)}"
+                    f"`{attr}` = {repr(value)}"
                     for attr, value in zip(attrs, data)
                 ),
                 f"WHERE id = {repr(str(model.id))}",
