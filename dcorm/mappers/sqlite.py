@@ -89,7 +89,7 @@ class SQLite3(Mapper):
         ]
         if model._in_db:
             sql = "\n".join((
-                f"UPDATE {table}",
+                f"UPDATE `{table}`",
                 "SET",
                 " , ".join(
                     f"`{attr}` = {repr(value)}"
