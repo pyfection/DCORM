@@ -63,11 +63,11 @@ class SQLite3(Mapper):
             yield data
 
     def create(self, model: Type[Model]):
-        attrs = list(model.fields().keys())
+        attrs = list(f"`{k}`" for k in model.fields().keys())
         table = model.__name__.lower()
         try:
             self.cur.execute(
-                f"CREATE TABLE {table}{str(tuple(attrs))}"
+                f"CREATE TABLE `{table}`{str(tuple(attrs))}"
             )
         except OperationalError:
             pass  # Table already exists
